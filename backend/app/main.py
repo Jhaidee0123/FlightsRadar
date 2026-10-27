@@ -8,7 +8,6 @@ from fastapi.responses import JSONResponse
 
 from app.api.routes import router
 from app.config import get_settings
-from app.db import get_db
 from app.providers.base import ProviderThrottled
 from app.services.watcher import radar_loop
 
@@ -17,7 +16,6 @@ logging.basicConfig(level=logging.INFO)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await asyncio.to_thread(get_db().migrate)
     task = asyncio.create_task(radar_loop())
     yield
     task.cancel()

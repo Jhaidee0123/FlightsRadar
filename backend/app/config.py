@@ -16,7 +16,8 @@ class Settings(BaseSettings):
 
     hubs: str = "BOG,PTY,MIA,FLL,MEX,LAX,SFO,JFK,MAD"
 
-    watch_interval_minutes: int = 360
+    # 0 = sin revisión automática; las rutas se revisan a mano desde el Radar.
+    watch_interval_minutes: int = 0
 
     telegram_bot_token: str = ""
     telegram_chat_id: str = ""

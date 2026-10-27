@@ -34,7 +34,7 @@ export default function RadarPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Radar</h1>
           <p className="mt-1 text-sm text-ink-2">
-            Rutas vigiladas. El backend las revisa automáticamente y te avisa por Telegram si baja el precio.
+            Rutas vigiladas. Pulsa “Revisar ahora” para consultar el precio actual y guardarlo en el historial.
           </p>
         </div>
         {error && <p className="text-sm text-critical">{error}</p>}

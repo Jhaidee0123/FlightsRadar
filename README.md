@@ -32,8 +32,8 @@ turso db show flightsradar --url      # -> TURSO_DATABASE_URL
 turso db tokens create flightsradar   # -> TURSO_AUTH_TOKEN
 ```
 
-Se conecta como réplica embebida: lee del archivo local y escribe en Turso.
-Las tablas se crean solas al arrancar.
+Se conecta directo a Turso (sin archivo local). Las tablas se crean solas con la
+primera consulta.
 
 ## Frontend
 
@@ -61,7 +61,9 @@ pnpm dev                    # http://localhost:3000
 
 ## Radar y alertas
 
-El backend revisa las rutas activas cada `WATCH_INTERVAL_MINUTES` y genera una alerta cuando:
+Las rutas se revisan a mano con “Revisar ahora” en la página Radar. Opcionalmente, en
+un servidor propio, `WATCH_INTERVAL_MINUTES` > 0 activa la revisión automática. Se genera
+una alerta cuando:
 
 - el precio llega al objetivo,
 - cae más de 5% frente al mejor precio anterior, o
@@ -69,6 +71,16 @@ El backend revisa las rutas activas cada `WATCH_INTERVAL_MINUTES` y genera una a
 
 Para recibirlas en Telegram: crear un bot con @BotFather, escribirle un mensaje, y
 poner `TELEGRAM_BOT_TOKEN` y `TELEGRAM_CHAT_ID` en `.env`.
+
+## Despliegue en Vercel
+
+Un solo proyecto con dos servicios (`vercel.json`): Next.js sirve la web y FastAPI
+responde en `/api/*` en el mismo dominio. Variables en Vercel: `TURSO_DATABASE_URL` y
+`TURSO_AUTH_TOKEN`.
+
+```bash
+vercel deploy --prod     # desde la raíz del repo
+```
 
 ## Sobre la fuente de datos
 

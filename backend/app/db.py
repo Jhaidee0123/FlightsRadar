@@ -1,7 +1,7 @@
 """Acceso a TursoDB (libSQL).
 
-Con TURSO_DATABASE_URL se usa una réplica embebida: las lecturas van al archivo
-local y las escrituras se envían al primario de Turso. Sin URL, solo archivo local.
+Con TURSO_DATABASE_URL se conecta directo a Turso (sin archivo local, apto para
+Vercel donde el disco es efímero). Sin URL, solo archivo local.
 """
 
 import threading
@@ -72,29 +72,18 @@ class Database:
         settings = get_settings()
         if settings.turso_database_url:
             self._conn = libsql.connect(
-                settings.local_db_path,
-                sync_url=settings.turso_database_url,
-                auth_token=settings.turso_auth_token,
+                settings.turso_database_url, auth_token=settings.turso_auth_token
             )
-            self._remote = True
         else:
             self._conn = libsql.connect(settings.local_db_path)
-            self._remote = False
         # La conexión de libSQL no es segura entre hilos y fli corre en un threadpool.
         self._lock = threading.Lock()
 
-    def sync(self) -> None:
-        if self._remote:
-            with self._lock:
-                self._conn.sync()
-
     def migrate(self) -> None:
-        self.sync()
         with self._lock:
             for stmt in SCHEMA:
                 self._conn.execute(stmt)
             self._conn.commit()
-        self.sync()
 
     def execute(self, sql: str, params: tuple = ()) -> int | None:
         with self._lock:
@@ -121,10 +110,15 @@ class Database:
 
 
 _db: Database | None = None
+_db_lock = threading.Lock()
 
 
 def get_db() -> Database:
+    # Migración perezosa: en Vercel el lifespan de ASGI no está garantizado.
     global _db
-    if _db is None:
-        _db = Database()
+    with _db_lock:
+        if _db is None:
+            db = Database()
+            db.migrate()
+            _db = db
     return _db

@@ -129,7 +129,6 @@ async def radar_loop() -> None:
     while True:
         try:
             await asyncio.to_thread(check_all)
-            await asyncio.to_thread(get_db().sync)
         except Exception:
             log.exception("Fallo en el ciclo del radar")
         await asyncio.sleep(minutes * 60)

@@ -1,4 +1,5 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8010";
+// Vacío en Vercel: el backend vive en el mismo dominio bajo /api.
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
 
 export type MaxStops = "ANY" | "NON_STOP" | "ONE_STOP" | "TWO_STOPS";
 
