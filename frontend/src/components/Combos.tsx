@@ -31,10 +31,12 @@ export default function Combos({ origin, destination, dateFrom, dateTo, currency
   };
 
   return (
-    <section className="card p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <section className="card relative overflow-hidden p-5 sm:p-6">
+      <div className="pointer-events-none absolute -right-20 -bottom-24 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
+      <div className="relative flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="font-semibold">Combinaciones vía hubs</h3>
+          <p className="eyebrow text-accent">Lo que Google Flights no te muestra</p>
+          <h3 className="mt-1 text-lg font-semibold tracking-tight">Combinaciones vía hubs</h3>
           <p className="mt-1 max-w-xl text-sm text-ink-2">
             Tiquetes separados {origin} → hub → {destination}. Google Flights casi nunca los arma. Los precios son
             estimados del calendario: verifica horarios antes de comprar.
@@ -44,12 +46,12 @@ export default function Combos({ origin, destination, dateFrom, dateTo, currency
           {loading ? "Buscando en hubs…" : combos ? "Volver a buscar" : "Buscar combinaciones"}
         </button>
       </div>
-      {error && <p className="mt-3 text-sm text-critical">{error}</p>}
+      {error && <p className="relative mt-3 text-sm text-critical">{error}</p>}
       {combos && combos.length === 0 && <p className="mt-4 text-sm text-ink-2">No hay combinaciones en ese rango.</p>}
       {combos && combos.length > 0 && (
-        <div className="mt-4 overflow-x-auto">
+        <div className="relative mt-5 overflow-x-auto">
           <table className="w-full min-w-[640px] text-sm">
-            <thead className="text-left text-xs text-ink-3">
+            <thead className="text-left text-[11px] uppercase tracking-wide text-ink-3">
               <tr className="border-b border-line">
                 <th className="py-2 font-medium">Salida</th>
                 <th className="py-2 font-medium">Vía</th>
@@ -106,7 +108,7 @@ function ComboRow({ combo: c, origin, destination }: { combo: Combo; origin: str
             <span className="block text-xs text-ink-3">2º tramo {shortDate(c.second_leg_date)}</span>
           )}
         </td>
-        <td className="py-2.5 font-mono font-semibold">{c.hub}</td>
+        <td className="py-2.5"><span className="rounded-md bg-surface-3 px-2 py-0.5 text-xs font-semibold">{c.hub}</span></td>
         <td className="num py-2.5 text-right font-semibold">{money(c.total_price, c.currency)}</td>
         <td className="num py-2.5 text-right text-ink-2">{money(c.direct_price, c.currency)}</td>
         <td className="num py-2.5 text-right">

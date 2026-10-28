@@ -83,6 +83,9 @@ const CITIES: { name: string; codes: string[]; alt?: string[] }[] = [
 
 const countryNames = new Intl.DisplayNames(["es"], { type: "region" });
 
+/** País de los usuarios: a igual coincidencia, sus aeropuertos salen primero. */
+const HOME_COUNTRY = "CO";
+
 export function countryName(iso: string): string {
   try {
     return countryNames.of(iso) ?? iso;
@@ -131,7 +134,7 @@ function buildIndex(rows: Row[]): PlaceIndex {
       name,
       city,
       country: countryEs,
-      rank,
+      rank: rank + (country === HOME_COUNTRY ? 3 : 0),
       nCity: normalize(city),
       nName: normalize(name),
       nCountry: normalize(countryEs),

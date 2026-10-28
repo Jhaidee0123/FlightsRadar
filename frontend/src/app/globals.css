@@ -1,126 +1,120 @@
 @import "tailwindcss";
 
+/* Tema "cabina": oscuro único, azul noche con acento azul eléctrico. */
 :root {
-  color-scheme: light;
-  --bg: #f6f6f4;
-  --surface: #fcfcfb;
-  --surface-2: #f0efec;
-  --border: #e2e1dc;
-  --text: #0b0b0b;
-  --text-2: #52514e;
-  --text-3: #7a7974;
-  --accent: #2a78d6;
-  --accent-ink: #ffffff;
-  --good: #0ca30c;
-  --good-ink: #006300;
-  --warning: #fab219;
-  --critical: #d03b3b;
-
-  /* Rampa secuencial azul: más oscuro = más barato */
-  --seq-1: #cde2fb;
-  --seq-2: #9ec5f4;
-  --seq-3: #6da7ec;
-  --seq-4: #2a78d6;
-  --seq-5: #184f95;
-  /* Texto sobre cada paso de la rampa */
-  --seq-ink-1: #0b0b0b;
-  --seq-ink-2: #0b0b0b;
-  --seq-ink-3: #0b0b0b;
-  --seq-ink-4: #ffffff;
-  --seq-ink-5: #ffffff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #121211;
-    --surface: #1a1a19;
-    --surface-2: #232321;
-    --border: #2f2f2c;
-    --text: #f0efec;
-    --text-2: #c3c2b7;
-    --text-3: #8f8e86;
-    --accent: #3987e5;
-    --good-ink: #4cc44c;
-    --seq-1: #1e2a3a;
-    --seq-2: #184f95;
-    --seq-3: #256abf;
-    --seq-4: #3987e5;
-    --seq-5: #86b6ef;
-    --seq-ink-1: #f0efec;
-    --seq-ink-2: #ffffff;
-    --seq-ink-3: #ffffff;
-    --seq-ink-4: #0b0b0b;
-    --seq-ink-5: #0b0b0b;
-  }
-}
-
-:root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121211;
-  --surface: #1a1a19;
-  --surface-2: #232321;
-  --border: #2f2f2c;
-  --text: #f0efec;
-  --text-2: #c3c2b7;
-  --text-3: #8f8e86;
-  --accent: #3987e5;
-  --good-ink: #4cc44c;
-  --seq-1: #1e2a3a;
-  --seq-2: #184f95;
-  --seq-3: #256abf;
-  --seq-4: #3987e5;
-  --seq-5: #86b6ef;
-  --seq-ink-1: #f0efec;
+  --bg: #070b14;
+  --surface: #0d1322;
+  --surface-2: #141c30;
+  --surface-3: #1b2540;
+  --border: #212b45;
+  --border-strong: #2e3a5c;
+  --text: #eef2fb;
+  --text-2: #a7b2ca;
+  --text-3: #6e7a95;
+  /* Acento para texto, bordes y anillos; el sólido es para fondos con texto blanco. */
+  --accent: #5b9dff;
+  --accent-solid: #2563eb;
+  --accent-solid-hover: #1d4fd1;
+  --accent-soft: rgb(91 157 255 / 0.14);
+  --good: #34d399;
+  --good-ink: #6ee7b7;
+  --good-soft: rgb(52 211 153 / 0.12);
+  --warning: #fbbf24;
+  --critical: #f87171;
+  --critical-soft: rgb(248 113 113 / 0.12);
+
+  /* Rampa secuencial azul para el calendario: más claro = más barato (resalta sobre fondo oscuro). */
+  --seq-1: #151f36;
+  --seq-2: #1b3767;
+  --seq-3: #2456a3;
+  --seq-4: #3d86f0;
+  --seq-5: #9cc5ff;
+  --seq-ink-1: #b9c4dc;
   --seq-ink-2: #ffffff;
   --seq-ink-3: #ffffff;
-  --seq-ink-4: #0b0b0b;
-  --seq-ink-5: #0b0b0b;
+  --seq-ink-4: #05101f;
+  --seq-ink-5: #05101f;
 }
 
 @theme inline {
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
   --color-line: var(--border);
+  --color-line-strong: var(--border-strong);
   --color-ink: var(--text);
   --color-ink-2: var(--text-2);
   --color-ink-3: var(--text-3);
   --color-accent: var(--accent);
+  --color-accent-solid: var(--accent-solid);
+  --color-accent-soft: var(--accent-soft);
   --color-good: var(--good);
   --color-good-ink: var(--good-ink);
+  --color-good-soft: var(--good-soft);
   --color-warning: var(--warning);
   --color-critical: var(--critical);
+  --color-critical-soft: var(--critical-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(1100px 420px at 50% -120px, rgb(61 134 240 / 0.22), transparent 70%),
+    var(--bg);
+  background-repeat: no-repeat;
   color: var(--text);
   font-family: var(--font-geist-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* El ícono del calendario nativo hereda el color del texto. */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.75);
+  cursor: pointer;
 }
 
 @utility num {
   font-variant-numeric: tabular-nums;
 }
 
+/* Etiqueta pequeña dentro de las cajas del buscador. */
+@utility eyebrow {
+  @apply text-[11px] font-medium uppercase tracking-[0.08em] text-ink-3;
+}
+
 @utility field {
-  @apply w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink outline-none focus:border-accent;
+  @apply w-full rounded-lg border border-line bg-surface-2 px-3 py-2 text-sm text-ink outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft;
+}
+
+/* Caja del buscador estilo aerolínea: etiqueta arriba, valor grande abajo. */
+@utility search-box {
+  @apply rounded-xl border border-line bg-surface-2 px-4 py-2.5 transition hover:border-line-strong focus-within:border-accent focus-within:ring-2 focus-within:ring-accent-soft;
 }
 
 @utility btn {
-  @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition disabled:opacity-50;
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-50;
 }
 
 @utility btn-primary {
-  @apply btn bg-accent text-white hover:opacity-90;
+  @apply btn bg-accent-solid text-white shadow-[0_8px_24px_-8px_rgb(37_99_235/0.7)] hover:bg-[var(--accent-solid-hover)];
 }
 
 @utility btn-ghost {
-  @apply btn border border-line bg-surface text-ink hover:bg-surface-2;
+  @apply btn border border-line bg-surface-2 text-ink hover:border-line-strong hover:bg-surface-3;
 }
 
 @utility card {
-  @apply rounded-xl border border-line bg-surface;
+  @apply rounded-2xl border border-line bg-surface shadow-[inset_0_1px_0_rgb(255_255_255/0.03)];
+}
+
+/* Control segmentado tipo pastilla. */
+@utility seg {
+  @apply inline-flex rounded-full border border-line bg-surface-2 p-1;
+}
+
+@utility seg-item {
+  @apply rounded-full px-3.5 py-1.5 text-sm text-ink-2 transition hover:text-ink aria-pressed:bg-accent-solid aria-pressed:font-medium aria-pressed:text-white;
 }

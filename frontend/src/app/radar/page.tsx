@@ -32,8 +32,9 @@ export default function RadarPage() {
     <div className="grid gap-6 lg:grid-cols-3">
       <section className="flex flex-col gap-3 lg:col-span-2">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Radar</h1>
-          <p className="mt-1 text-sm text-ink-2">
+          <p className="eyebrow text-accent">Rutas vigiladas</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight">Radar</h1>
+          <p className="mt-2 text-sm text-ink-2">
             Rutas vigiladas. Pulsa “Revisar ahora” para consultar el precio actual y guardarlo en el historial.
           </p>
         </div>
@@ -49,13 +50,13 @@ export default function RadarPage() {
       </section>
 
       <aside className="flex flex-col gap-3">
-        <h2 className="pt-1 font-semibold">Alertas recientes</h2>
+        <h2 className="eyebrow pt-2 lg:pt-[4.6rem]">Alertas recientes</h2>
         {alerts.length === 0 && <p className="text-sm text-ink-3">Sin alertas todavía.</p>}
         <ul className="flex flex-col gap-2">
           {alerts.map((a) => (
             <li key={a.id} className="card p-3 text-sm">
               <div className="flex items-baseline justify-between gap-2">
-                <span className="font-mono font-semibold">
+                <span className="font-semibold">
                   {a.origin} → {a.via ? `${a.via} → ` : ""}
                   {a.destination}
                 </span>
@@ -114,10 +115,10 @@ function WatchCard({ watch: w, onChange }: { watch: Watch; onChange: () => void 
   const below = w.target_price != null && w.best_price != null && w.best_price <= w.target_price;
 
   return (
-    <article className={`card p-5 ${w.active ? "" : "opacity-60"}`}>
+    <article className={`card p-5 sm:p-6 ${w.active ? "" : "opacity-60"}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h3 className="font-mono text-lg font-semibold">
+          <h3 className="text-xl font-semibold tracking-tight">
             {w.origin.replaceAll(",", "/")} → {w.destination.replaceAll(",", "/")}
           </h3>
           <p className="text-sm text-ink-2">
@@ -127,7 +128,8 @@ function WatchCard({ watch: w, onChange }: { watch: Watch; onChange: () => void 
           </p>
         </div>
         <div className="text-right">
-          <p className="num text-xl font-semibold">{money(w.best_price, w.currency)}</p>
+          <p className="eyebrow">Mejor precio</p>
+          <p className="num text-2xl font-semibold tracking-tight">{money(w.best_price, w.currency)}</p>
           {w.best_depart_date && (
             <p className="text-xs text-ink-2">
               {shortDate(w.best_depart_date)}

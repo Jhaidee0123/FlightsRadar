@@ -47,12 +47,12 @@ export default function PriceCalendar({ prices, currency, selected, onSelect }: 
           ];
           return (
             <div key={first.toISOString()}>
-              <h4 className="mb-2 text-sm font-medium text-ink first-letter:uppercase">
+              <h4 className="mb-2 text-sm font-semibold text-ink first-letter:uppercase">
                 {first.toLocaleDateString("es-CO", { month: "long", year: "numeric" })}
               </h4>
-              <div className="grid grid-cols-7 gap-[2px] text-center">
+              <div className="grid grid-cols-7 gap-[3px] text-center">
                 {WEEKDAYS.map((w) => (
-                  <div key={w} className="pb-1 text-[11px] text-ink-3">
+                  <div key={w} className="pb-1.5 text-[11px] uppercase text-ink-3">
                     {w}
                   </div>
                 ))}
@@ -62,7 +62,7 @@ export default function PriceCalendar({ prices, currency, selected, onSelect }: 
                   const day = Number(iso.slice(8));
                   if (!p) {
                     return (
-                      <div key={iso} className="flex h-12 flex-col items-center justify-center rounded text-xs text-ink-3">
+                      <div key={iso} className="flex h-12 flex-col items-center justify-center rounded-md text-xs text-ink-3/60">
                         {day}
                       </div>
                     );
@@ -75,8 +75,8 @@ export default function PriceCalendar({ prices, currency, selected, onSelect }: 
                       type="button"
                       onClick={() => onSelect(p)}
                       title={`${shortDate(iso)}${p.return_date ? ` → ${shortDate(p.return_date)}` : ""}: ${money(p.price, currency)}`}
-                      className={`group relative flex h-12 flex-col items-center justify-center rounded transition hover:scale-105 ${
-                        isSel ? "ring-2 ring-ink ring-offset-1 ring-offset-surface" : ""
+                      className={`group relative flex h-12 flex-col items-center justify-center rounded-md transition hover:z-10 hover:scale-110 hover:shadow-lg hover:shadow-black/40 ${
+                        isSel ? "z-10 ring-2 ring-white ring-offset-2 ring-offset-surface" : ""
                       }`}
                       style={{ background: RAMP[b], color: RAMP_INK[b] }}
                     >
@@ -85,7 +85,7 @@ export default function PriceCalendar({ prices, currency, selected, onSelect }: 
                         {compactMoney(p.price, currency).replace(/\s/g, "")}
                       </span>
                       {p.price === min && (
-                        <span className="absolute -right-1 -top-1 rounded-full bg-surface px-1 text-[10px] leading-4 text-ink shadow">
+                        <span className="absolute -right-1 -top-1 rounded-full bg-accent-solid px-1 text-[10px] leading-4 text-white shadow">
                           ★
                         </span>
                       )}

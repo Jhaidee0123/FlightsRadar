@@ -87,6 +87,114 @@ function SwapIcon() {
   );
 }
 
+const MODES: { id: TripMode; label: string }[] = [
+  { id: "ow", label: "Solo ida" },
+  { id: "rt", label: "Ida y vuelta" },
+  { id: "split", label: "Ida + regreso separados" },
+];
+
+function Chevron() {
+  return (
+    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
+function PillSelect<T extends string>({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: T;
+  onChange: (v: T) => void;
+  options: { value: T; label: string }[];
+}) {
+  return (
+    <label className="relative inline-flex items-center gap-1.5 rounded-full border border-line bg-surface-2 py-1.5 pr-8 pl-3.5 text-sm transition hover:border-line-strong focus-within:border-accent">
+      <span className="text-ink-3">{label}</span>
+      <select
+        className="cursor-pointer appearance-none bg-transparent font-medium text-ink outline-none"
+        value={value}
+        onChange={(e) => onChange(e.target.value as T)}
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <span className="pointer-events-none absolute right-3 text-ink-3">
+        <Chevron />
+      </span>
+    </label>
+  );
+}
+
+function DateRange({
+  label,
+  from,
+  to,
+  min,
+  onFrom,
+  onTo,
+  className = "",
+}: {
+  label: string;
+  from: string;
+  to: string;
+  min: string;
+  onFrom: (v: string) => void;
+  onTo: (v: string) => void;
+  className?: string;
+}) {
+  return (
+    <div className={`search-box min-h-[4.25rem] ${className}`}>
+      <span className="eyebrow block">{label}</span>
+      <div className="mt-1 flex items-center gap-2">
+        <input
+          type="date"
+          aria-label={`${label}: desde`}
+          className="num min-w-0 flex-1 bg-transparent text-base font-medium outline-none"
+          min={min}
+          value={from}
+          onChange={(e) => onFrom(e.target.value)}
+        />
+        <span className="text-ink-3" aria-hidden>
+          →
+        </span>
+        <input
+          type="date"
+          aria-label={`${label}: hasta`}
+          className="num min-w-0 flex-1 bg-transparent text-base font-medium outline-none"
+          min={from}
+          value={to}
+          onChange={(e) => onTo(e.target.value)}
+        />
+      </div>
+    </div>
+  );
+}
+
+function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
+  return (
+    <div className="mb-4">
+      <p className="eyebrow">{eyebrow}</p>
+      <h3 className="mt-1 text-lg font-semibold tracking-tight">{title}</h3>
+    </div>
+  );
+}
+
+function PlaneIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden>
+      <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" />
+    </svg>
+  );
+}
+
 export default function SearchPage() {
   const [origin, setOrigin] = useState("MDE");
   const [destination, setDestination] = useState("BOG");
@@ -198,179 +306,227 @@ export default function SearchPage() {
     best && outbound.selected?.depart_date === best.out.depart_date && inbound.selected?.depart_date === best.ret.depart_date;
 
   return (
-    <div className="flex flex-col gap-6">
-      <section>
-        <h1 className="text-2xl font-semibold tracking-tight">Encuentra el vuelo más barato</h1>
+    <div className="flex flex-col gap-8">
+      <section className="max-w-3xl">
+        <p className="eyebrow text-accent">Radar de tarifas</p>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Encuentra el vuelo más barato</h1>
+        <p className="mt-3 text-ink-2">
+          Escaneamos meses de fechas, armamos combinaciones por hubs y te decimos si el precio de verdad es bueno.
+        </p>
       </section>
 
-      <form onSubmit={search} className="card grid gap-4 p-5 md:grid-cols-12">
-        <div className="flex flex-col items-stretch gap-2 md:col-span-8 md:flex-row md:items-start">
-          <div className="min-w-0 flex-1">
-            <AirportInput label="Desde" value={origin} onChange={setOrigin} placeholder="Ciudad o código" />
+      <form onSubmit={search} className="card flex flex-col gap-4 p-4 shadow-[0_40px_100px_-50px_rgb(37_99_235/0.6)] sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="seg flex-wrap" role="group" aria-label="Tipo de viaje">
+            {MODES.map((m) => (
+              <button key={m.id} type="button" aria-pressed={mode === m.id} className="seg-item" onClick={() => setMode(m.id)}>
+                {m.label}
+              </button>
+            ))}
           </div>
-          <button
-            type="button"
-            onClick={swap}
-            title="Intercambiar origen y destino"
-            aria-label="Intercambiar origen y destino"
-            className="grid h-8 w-8 shrink-0 rotate-90 place-items-center self-center rounded-full border border-line bg-surface text-ink-2 hover:bg-surface-2 hover:text-ink md:mt-6 md:rotate-0"
-          >
-            <SwapIcon />
-          </button>
-          <div className="min-w-0 flex-1">
-            <AirportInput label="Hacia" value={destination} onChange={setDestination} placeholder="Ciudad o código" />
-          </div>
-        </div>
-        <div className="md:col-span-4">
-          <label className="mb-1 block text-xs font-medium text-ink-2">Viaje</label>
-          <div className="flex gap-2">
-            <select className="field" value={mode} onChange={(e) => setMode(e.target.value as TripMode)}>
-              <option value="ow">Solo ida</option>
-              <option value="rt">Ida y vuelta (un tiquete)</option>
-              <option value="split">Ida + regreso por separado</option>
-            </select>
+          <div className="flex flex-wrap items-center gap-2">
             {mode === "rt" && (
-              <div className="flex items-center gap-1">
+              <label className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-2 py-1 pr-1 pl-3.5 text-sm">
+                <span className="text-ink-3">Duración</span>
                 <input
                   type="number"
                   min={1}
                   max={60}
-                  className="field w-16"
+                  className="num w-12 rounded-full bg-surface-3 px-2 py-0.5 text-center font-medium text-ink outline-none focus:ring-2 focus:ring-accent-soft"
                   value={tripDays}
                   onChange={(e) => setTripDays(Number(e.target.value))}
                 />
-                <span className="text-xs text-ink-2">días</span>
-              </div>
+                <span className="pr-2 text-ink-3">días</span>
+              </label>
             )}
+            <PillSelect
+              label="Escalas"
+              value={maxStops}
+              onChange={setMaxStops}
+              options={[
+                { value: "ANY", label: "Cualquiera" },
+                { value: "NON_STOP", label: "Solo directos" },
+                { value: "ONE_STOP", label: "Máximo 1" },
+                { value: "TWO_STOPS", label: "Máximo 2" },
+              ]}
+            />
+            <PillSelect
+              label="Moneda"
+              value={currency}
+              onChange={setCurrency}
+              options={["COP", "USD", "EUR", "JPY"].map((c) => ({ value: c, label: c }))}
+            />
           </div>
         </div>
-        <div className="md:col-span-6">
-          <label className="mb-1 block text-xs font-medium text-ink-2">Salir entre</label>
-          <div className="flex gap-2">
-            <input type="date" className="field" min={today} value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} />
-            <input type="date" className="field" min={dateFrom} value={dateTo} onChange={(e) => setDateTo(e.target.value)} />
+
+        <div className="grid gap-3 lg:grid-cols-12">
+          <div className="relative grid gap-2 sm:grid-cols-2 lg:col-span-6">
+            <AirportInput label="Desde" value={origin} onChange={setOrigin} placeholder="¿Desde dónde?" />
+            <AirportInput label="Hacia" value={destination} onChange={setDestination} placeholder="¿A dónde vas?" />
+            <button
+              type="button"
+              onClick={swap}
+              title="Intercambiar origen y destino"
+              aria-label="Intercambiar origen y destino"
+              className="absolute top-1/2 left-1/2 z-10 grid h-9 w-9 -translate-x-1/2 -translate-y-1/2 rotate-90 place-items-center rounded-full border-4 border-surface bg-surface-3 text-ink-2 transition hover:text-accent sm:rotate-0"
+            >
+              <SwapIcon />
+            </button>
           </div>
-        </div>
-        {mode === "split" && (
-          <div className="md:col-span-6">
-            <label className="mb-1 block text-xs font-medium text-ink-2">Regresar entre</label>
-            <div className="flex gap-2">
-              <input type="date" className="field" min={dateFrom} value={returnFrom} onChange={(e) => setReturnFrom(e.target.value)} />
-              <input type="date" className="field" min={returnFrom} value={returnTo} onChange={(e) => setReturnTo(e.target.value)} />
-            </div>
-          </div>
-        )}
-        <div className="md:col-span-2">
-          <label className="mb-1 block text-xs font-medium text-ink-2">Escalas</label>
-          <select className="field" value={maxStops} onChange={(e) => setMaxStops(e.target.value as MaxStops)}>
-            <option value="ANY">Cualquiera</option>
-            <option value="NON_STOP">Solo directos</option>
-            <option value="ONE_STOP">Máximo 1</option>
-            <option value="TWO_STOPS">Máximo 2</option>
-          </select>
-        </div>
-        <div className="md:col-span-2">
-          <label className="mb-1 block text-xs font-medium text-ink-2">Moneda</label>
-          <select className="field" value={currency} onChange={(e) => setCurrency(e.target.value)}>
-            {["COP", "USD", "EUR", "JPY"].map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-end md:col-span-2 md:col-end-13 md:justify-end">
-          <button className="btn-primary w-full md:w-auto" disabled={loading}>
-            {loading ? "Escaneando fechas…" : "Buscar"}
+          <DateRange
+            className="lg:col-span-4"
+            label="Salir entre"
+            from={dateFrom}
+            to={dateTo}
+            min={today}
+            onFrom={setDateFrom}
+            onTo={setDateTo}
+          />
+          {mode === "split" && (
+            <DateRange
+              className="lg:col-span-4 lg:col-start-7"
+              label="Regresar entre"
+              from={returnFrom}
+              to={returnTo}
+              min={dateFrom}
+              onFrom={setReturnFrom}
+              onTo={setReturnTo}
+            />
+          )}
+          <button
+            className="btn-primary min-h-[4.25rem] rounded-xl text-base font-semibold lg:col-span-2 lg:col-start-11 lg:row-start-1"
+            disabled={loading}
+          >
+            {loading ? (
+              "Escaneando…"
+            ) : (
+              <>
+                <PlaneIcon /> Buscar
+              </>
+            )}
           </button>
         </div>
       </form>
 
-      {error && <p className="rounded-md border border-critical/40 bg-surface p-3 text-sm text-critical">{error}</p>}
+      {error && (
+        <p className="rounded-xl border border-critical/40 bg-critical-soft p-3 text-sm text-critical" role="alert">
+          {error}
+        </p>
+      )}
 
       {calendar && searched && (
         <>
           {split ? (
             best ? (
-              <section className="card flex flex-wrap items-center justify-between gap-4 p-5">
-                <div>
-                  <p className="text-xs uppercase tracking-wide text-ink-3">
-                    {chosen != null && !chosenIsBest ? "Tu selección" : "Ida + regreso más barato"}
-                  </p>
-                  <p className="num mt-1 text-3xl font-semibold">{money(chosen ?? best.total, calendar.currency)}</p>
-                  <p className="mt-1 text-sm text-ink-2">
-                    Ida {shortDate((outbound.selected ?? best.out).depart_date)} (
-                    {money((outbound.selected ?? best.out).price, calendar.currency)}) · Regreso{" "}
-                    {shortDate((inbound.selected ?? best.ret).depart_date)} (
-                    {money((inbound.selected ?? best.ret).price, calendar.currency)})
-                  </p>
-                  {outbound.selected && inbound.selected && chosen == null && (
-                    <p className="mt-1 text-sm text-ink-2">
-                      <span className="text-warning" aria-hidden>⚠</span> El regreso elegido es antes o el mismo día de la ida.
-                    </p>
+              <section className="card relative overflow-hidden p-6">
+                <div className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
+                <div className="relative flex flex-wrap items-end justify-between gap-6">
+                  <div>
+                    <p className="eyebrow">{chosen != null && !chosenIsBest ? "Tu selección" : "Ida + regreso más barato"}</p>
+                    <p className="num mt-2 text-5xl font-semibold tracking-tight">{money(chosen ?? best.total, calendar.currency)}</p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {[
+                        { tag: "Ida", p: outbound.selected ?? best.out, route: `${searched.origins.join("/")} → ${searched.destinations.join("/")}` },
+                        { tag: "Regreso", p: inbound.selected ?? best.ret, route: `${searched.destinations.join("/")} → ${searched.origins.join("/")}` },
+                      ].map(({ tag, p, route }) => (
+                        <div key={tag} className="rounded-xl border border-line bg-surface-2 px-4 py-2.5">
+                          <p className="eyebrow">
+                            {tag} · {route}
+                          </p>
+                          <p className="mt-0.5 text-sm">
+                            <span className="font-medium">{shortDate(p.depart_date)}</span>{" "}
+                            <span className="num text-ink-2">{money(p.price, calendar.currency)}</span>
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                    {outbound.selected && inbound.selected && chosen == null && (
+                      <p className="mt-3 text-sm text-ink-2">
+                        <span className="text-warning" aria-hidden>
+                          ⚠
+                        </span>{" "}
+                        El regreso elegido es antes o el mismo día de la ida.
+                      </p>
+                    )}
+                  </div>
+                  {!chosenIsBest && (
+                    <div className="rounded-xl border border-line bg-surface-2 p-4 text-sm">
+                      <p className="eyebrow">Lo más barato del rango</p>
+                      <p className="num mt-1 text-xl font-semibold">{money(best.total, calendar.currency)}</p>
+                      <p className="text-xs text-ink-2">
+                        {shortDate(best.out.depart_date)} → {shortDate(best.ret.depart_date)}
+                      </p>
+                      <button
+                        type="button"
+                        className="btn-ghost mt-3 w-full px-3 py-1.5 text-xs"
+                        onClick={() => {
+                          outbound.load(best.out, searched.origins, searched.destinations, maxStops, currency);
+                          inbound.load(best.ret, searched.destinations, searched.origins, maxStops, currency);
+                        }}
+                      >
+                        Usar estas fechas
+                      </button>
+                    </div>
                   )}
                 </div>
-                {!chosenIsBest && (
-                  <div className="text-sm text-ink-2">
-                    <p>
-                      Lo más barato del rango: <span className="num font-semibold text-ink">{money(best.total, calendar.currency)}</span>
-                    </p>
-                    <p className="text-xs">
-                      {shortDate(best.out.depart_date)} → {shortDate(best.ret.depart_date)}
-                    </p>
-                    <button
-                      type="button"
-                      className="btn-ghost mt-2 px-3 py-1.5 text-xs"
-                      onClick={() => {
-                        outbound.load(best.out, searched.origins, searched.destinations, maxStops, currency);
-                        inbound.load(best.ret, searched.destinations, searched.origins, maxStops, currency);
-                      }}
-                    >
-                      Usar estas fechas
-                    </button>
-                  </div>
-                )}
               </section>
             ) : (
-              <p className="text-sm text-ink-2">No hay una combinación de ida y regreso en esos rangos.</p>
+              <p className="card p-5 text-sm text-ink-2">No hay una combinación de ida y regreso en esos rangos.</p>
             )
           ) : calendar.cheapest ? (
-            <section className="card flex flex-wrap items-center justify-between gap-4 p-5">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-ink-3">Más barato del rango</p>
-                <p className="num mt-1 text-3xl font-semibold">{money(calendar.cheapest.price, calendar.currency)}</p>
-                <p className="mt-1 text-sm text-ink-2">
-                  {shortDate(calendar.cheapest.depart_date)}
-                  {calendar.cheapest.return_date && ` → ${shortDate(calendar.cheapest.return_date)}`} ·{" "}
-                  {searched.origins.join("/")} → {searched.destinations.join("/")}
-                </p>
-              </div>
-              {calendar.verdict && <VerdictBadge verdict={calendar.verdict} currency={calendar.currency} />}
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <input
-                    className="field w-40"
-                    type="number"
-                    placeholder="Precio objetivo"
-                    value={watchTarget}
-                    onChange={(e) => setWatchTarget(e.target.value)}
-                  />
-                  <button className="btn-ghost" onClick={watch} type="button">
-                    Vigilar ruta
-                  </button>
+            <section className="card relative overflow-hidden p-6">
+              <div className="pointer-events-none absolute -top-24 -left-24 h-64 w-64 rounded-full bg-accent/10 blur-3xl" />
+              <div className="relative flex flex-wrap items-end justify-between gap-6">
+                <div>
+                  <p className="eyebrow">Más barato del rango</p>
+                  <p className="num mt-2 text-5xl font-semibold tracking-tight">{money(calendar.cheapest.price, calendar.currency)}</p>
+                  <p className="mt-2 text-sm text-ink-2">
+                    <span className="font-medium text-ink">
+                      {searched.origins.join("/")} → {searched.destinations.join("/")}
+                    </span>{" "}
+                    · {shortDate(calendar.cheapest.depart_date)}
+                    {calendar.cheapest.return_date && ` → ${shortDate(calendar.cheapest.return_date)}`}
+                  </p>
+                  {calendar.verdict && (
+                    <div className="mt-4">
+                      <VerdictBadge verdict={calendar.verdict} currency={calendar.currency} />
+                    </div>
+                  )}
                 </div>
-                {watchMsg && <span className="text-xs text-ink-2">{watchMsg}</span>}
+                <div className="w-full rounded-xl border border-line bg-surface-2 p-4 sm:w-auto">
+                  <p className="eyebrow">Vigilar esta ruta</p>
+                  <div className="mt-2 flex gap-2">
+                    <input
+                      className="field w-40 bg-surface"
+                      type="number"
+                      placeholder="Precio objetivo"
+                      value={watchTarget}
+                      onChange={(e) => setWatchTarget(e.target.value)}
+                    />
+                    <button className="btn-ghost" onClick={watch} type="button">
+                      Vigilar
+                    </button>
+                  </div>
+                  {watchMsg && <p className="mt-2 text-xs text-ink-2">{watchMsg}</p>}
+                </div>
               </div>
             </section>
           ) : (
-            <p className="text-sm text-ink-2">No hay precios para ese rango.</p>
+            <p className="card p-5 text-sm text-ink-2">No hay precios para ese rango.</p>
           )}
 
           {calendar.prices.length > 0 && (
-            <section className="card p-5">
-              <h3 className="mb-4 font-semibold">
-                {searched.mode === "split"
-                  ? `Ida · ${searched.origins.join("/")} → ${searched.destinations.join("/")}`
-                  : `Calendario de precios ${searched.mode === "rt" ? `(ida y vuelta, ${tripDays} días)` : "(solo ida)"}`}
-              </h3>
+            <section className="card p-5 sm:p-6">
+              <SectionTitle
+                eyebrow={
+                  searched.mode === "split"
+                    ? "Calendario de ida"
+                    : searched.mode === "rt"
+                      ? `Calendario · ida y vuelta de ${tripDays} días`
+                      : "Calendario · solo ida"
+                }
+                title={`${searched.origins.join("/")} → ${searched.destinations.join("/")}`}
+              />
               <PriceCalendar
                 prices={calendar.prices}
                 currency={calendar.currency}
@@ -382,12 +538,11 @@ export default function SearchPage() {
 
           {outbound.selected && (
             <section>
-              <h3 className="mb-3 font-semibold">
-                {searched.mode === "split" ? "Vuelos de ida del " : "Vuelos del "}
-                {shortDate(outbound.selected.depart_date)}
-                {outbound.selected.return_date && ` al ${shortDate(outbound.selected.return_date)}`}
-              </h3>
-              {outbound.loading && <p className="text-sm text-ink-2">Cargando vuelos…</p>}
+              <SectionTitle
+                eyebrow={searched.mode === "split" ? "Vuelos de ida" : "Vuelos"}
+                title={`${shortDate(outbound.selected.depart_date)}${outbound.selected.return_date ? ` → ${shortDate(outbound.selected.return_date)}` : ""}`}
+              />
+              {outbound.loading && <FlightsSkeleton />}
               {outbound.flights && (
                 <FlightList options={outbound.flights.options} currency={calendar.currency} googleUrl={outbound.flights.url} />
               )}
@@ -395,10 +550,11 @@ export default function SearchPage() {
           )}
 
           {split && returnCalendar.prices.length > 0 && (
-            <section className="card p-5">
-              <h3 className="mb-4 font-semibold">
-                Regreso · {searched.destinations.join("/")} → {searched.origins.join("/")}
-              </h3>
+            <section className="card p-5 sm:p-6">
+              <SectionTitle
+                eyebrow="Calendario de regreso"
+                title={`${searched.destinations.join("/")} → ${searched.origins.join("/")}`}
+              />
               <PriceCalendar
                 prices={returnCalendar.prices}
                 currency={returnCalendar.currency}
@@ -410,8 +566,8 @@ export default function SearchPage() {
 
           {split && inbound.selected && (
             <section>
-              <h3 className="mb-3 font-semibold">Vuelos de regreso del {shortDate(inbound.selected.depart_date)}</h3>
-              {inbound.loading && <p className="text-sm text-ink-2">Cargando vuelos…</p>}
+              <SectionTitle eyebrow="Vuelos de regreso" title={shortDate(inbound.selected.depart_date)} />
+              {inbound.loading && <FlightsSkeleton />}
               {inbound.flights && (
                 <FlightList options={inbound.flights.options} currency={returnCalendar.currency} googleUrl={inbound.flights.url} />
               )}
@@ -430,5 +586,15 @@ export default function SearchPage() {
         </>
       )}
     </div>
+  );
+}
+
+function FlightsSkeleton() {
+  return (
+    <ul className="flex flex-col gap-2" aria-label="Cargando vuelos">
+      {[0, 1, 2].map((i) => (
+        <li key={i} className="card h-24 animate-pulse bg-surface-2/60" />
+      ))}
+    </ul>
   );
 }

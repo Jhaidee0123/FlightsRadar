@@ -12,8 +12,11 @@ const STYLES: Record<Verdict["level"], { icon: string; label: string; color: str
 export default function VerdictBadge({ verdict, currency }: { verdict: Verdict; currency: string }) {
   const s = STYLES[verdict.level];
   return (
-    <div className="flex flex-col gap-0.5">
-      <span className="inline-flex items-center gap-1.5 text-sm font-medium text-ink">
+    <div className="flex flex-col items-start gap-1.5">
+      <span
+        className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium text-ink"
+        style={{ borderColor: `color-mix(in srgb, ${s.color} 40%, transparent)`, background: `color-mix(in srgb, ${s.color} 12%, transparent)` }}
+      >
         <span style={{ color: s.color }} aria-hidden>
           {s.icon}
         </span>
