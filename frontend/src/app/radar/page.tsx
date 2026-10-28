@@ -41,7 +41,7 @@ export default function RadarPage() {
         {error && <p className="text-sm text-critical">{error}</p>}
         {loaded && watches.length === 0 && (
           <p className="card p-5 text-sm text-ink-2">
-            Aún no vigilas ninguna ruta. Haz una búsqueda y pulsa “Vigilar ruta”.
+            Aún no vigilas ninguna ruta. Haz una búsqueda y pulsa “Vigilar” junto al mejor precio.
           </p>
         )}
         {watches.map((w) => (
