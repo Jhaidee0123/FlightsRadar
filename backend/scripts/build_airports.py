@@ -19,7 +19,8 @@ OUT = Path(__file__).resolve().parents[2] / "frontend/src/data/airports.json"
 
 
 def main(csv_path: str) -> None:
-    known = {a.name for a in Airport}
+    # __members__ incluye los alias (códigos que comparten valor con otro, p. ej. SMR).
+    known = set(Airport.__members__)
     rows = []
     with open(csv_path, encoding="utf-8") as f:
         for r in csv.DictReader(f):

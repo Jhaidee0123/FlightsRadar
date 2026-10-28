@@ -10,6 +10,7 @@ from datetime import date, timedelta
 
 from fli.core.parsers import resolve_airport
 from fli.models import (
+    Airport,
     DateSearchFilters,
     FlightResult,
     FlightSearchFilters,
@@ -59,8 +60,34 @@ def _guarded(searcher):
     return searcher
 
 
+def _airport(code: str) -> Airport:
+    """Miembro del enum que conserva el código pedido.
+
+    En fli algunos códigos son alias de otro aeropuerto con el mismo nombre (SMR ->
+    GYE, ambos "Simón Bolívar"), y fli envía a Google el nombre del miembro: SMR
+    terminaría buscando Guayaquil. Para esos casos se crea un miembro con el código real.
+    """
+    member = resolve_airport(code)
+    if member.name == code:
+        return member
+    alias = object.__new__(Airport)
+    alias._name_ = code
+    alias._value_ = member.value
+    return alias
+
+
 def _airports(codes: list[str]) -> list[list]:
-    return [[resolve_airport(c.strip().upper()), 0] for c in codes]
+    return [[_airport(c.strip().upper()), 0] for c in codes]
+
+
+def _restore_aliases(option: FlightOption, codes: list[str]) -> FlightOption:
+    """Al parsear la respuesta fli vuelve a convertir los alias; devuelve el código buscado."""
+    canonical = {resolve_airport(c).name: c for c in codes if resolve_airport(c).name != c}
+    if canonical:
+        for leg in option.legs + option.return_legs:
+            leg.origin = canonical.get(leg.origin, leg.origin)
+            leg.destination = canonical.get(leg.destination, leg.destination)
+    return option
 
 
 def _leg(leg) -> Leg:
@@ -209,6 +236,7 @@ class FliProvider:
         seen: set[tuple] = set()
         for r in results or []:
             option = self._round_trip(r, currency) if isinstance(r, tuple) else self._one_way(r, currency)
+            option = _restore_aliases(option, origins + destinations)
             key = tuple(l.airline_code + l.flight_number for l in option.legs + option.return_legs)
             if key in seen:
                 continue
