@@ -97,12 +97,12 @@ export default function FlightList({
                 </p>
               )}
             </div>
-            <div className="flex items-center justify-between gap-3 border-t border-line pt-3 sm:w-44 sm:flex-col sm:items-end sm:border-t-0 sm:border-l sm:pt-0 sm:pl-6">
+            <div className="flex items-center justify-between gap-3 border-t border-line pt-3 sm:w-52 sm:flex-col sm:items-end sm:border-t-0 sm:border-l sm:pt-0 sm:pl-6">
               <div className="sm:text-right">
                 {isCheapest && <p className="eyebrow text-accent">Más barato</p>}
                 <p className="num text-2xl font-semibold tracking-tight">{money(o.price, currency)}</p>
               </div>
-              <a href={googleUrl} target="_blank" rel="noreferrer" className="btn-ghost px-3 py-1.5 text-xs">
+              <a href={googleUrl} target="_blank" rel="noreferrer" className="btn-ghost px-3 py-1.5 text-xs whitespace-nowrap">
                 Ver en Google Flights ↗
               </a>
             </div>
