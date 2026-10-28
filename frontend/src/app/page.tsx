@@ -121,8 +121,8 @@ export default function SearchPage() {
       <section>
         <h1 className="text-2xl font-semibold tracking-tight">Encuentra el vuelo más barato</h1>
         <p className="mt-1 text-sm text-ink-2">
-          Puedes poner varios aeropuertos separados por coma (ej. <span className="font-mono">MDE, BOG</span> →{" "}
-          <span className="font-mono">NRT, HND, KIX</span>) y un rango amplio de fechas.
+          Escribe una ciudad, un país o un código y elige; puedes sumar varios aeropuertos (ej. Medellín →
+          Tokio, que incluye Narita y Haneda) y un rango amplio de fechas.
         </p>
       </section>
 
