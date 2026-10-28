@@ -38,6 +38,7 @@ STOPS = {
 # Google responde 200 con un código de error en vez de datos cuando limita las consultas.
 _ERROR_PAYLOAD = re.compile(r'\["wrb\.fr",null,null,null,null,\[\d+\]')
 CACHE_TTL_SECONDS = 30 * 60
+EMPTY_RETRY_DELAY_SECONDS = 1.5
 
 
 class _GuardedClient:
@@ -117,6 +118,10 @@ class FliProvider:
             if hit and hit[0] > now:
                 return hit[1]
         result = fetch()
+        if not result:
+            # Google a veces responde vacío una consulta que segundos después sí trae datos.
+            time.sleep(EMPTY_RETRY_DELAY_SECONDS)
+            result = fetch()
         if result:
             with self._cache_lock:
                 self._cache[key] = (now + CACHE_TTL_SECONDS, result)
