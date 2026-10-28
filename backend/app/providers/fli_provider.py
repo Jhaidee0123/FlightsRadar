@@ -9,6 +9,7 @@ import time
 from datetime import date, timedelta
 
 from fli.core.parsers import resolve_airport
+from fli.search import _decoders
 from fli.models import (
     Airport,
     DateSearchFilters,
@@ -76,18 +77,13 @@ def _airport(code: str) -> Airport:
     return alias
 
 
+# El decodificador de respuestas de fli (flights==0.9.0) tampoco conoce los alias.
+for _code in Airport.__members__:
+    _decoders._AIRPORT_BY_CODE.setdefault(_code, _airport(_code))
+
+
 def _airports(codes: list[str]) -> list[list]:
     return [[_airport(c.strip().upper()), 0] for c in codes]
-
-
-def _restore_aliases(option: FlightOption, codes: list[str]) -> FlightOption:
-    """Al parsear la respuesta fli vuelve a convertir los alias; devuelve el código buscado."""
-    canonical = {resolve_airport(c).name: c for c in codes if resolve_airport(c).name != c}
-    if canonical:
-        for leg in option.legs + option.return_legs:
-            leg.origin = canonical.get(leg.origin, leg.origin)
-            leg.destination = canonical.get(leg.destination, leg.destination)
-    return option
 
 
 def _leg(leg) -> Leg:
@@ -236,7 +232,6 @@ class FliProvider:
         seen: set[tuple] = set()
         for r in results or []:
             option = self._round_trip(r, currency) if isinstance(r, tuple) else self._one_way(r, currency)
-            option = _restore_aliases(option, origins + destinations)
             key = tuple(l.airline_code + l.flight_number for l in option.legs + option.return_legs)
             if key in seen:
                 continue
